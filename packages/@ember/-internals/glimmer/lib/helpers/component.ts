@@ -22,19 +22,12 @@
 
   ```app/controllers/application.js
   import Controller from '@ember/controller';
-  import { computed } from '@ember/object';
 
-  export default Controller.extend({
-    infographicComponentName: computed('isMarketOpen', {
-      get() {
-        if (this.get('isMarketOpen')) {
-          return 'live-updating-chart';
-        } else {
-          return 'market-close-summary';
+  export default class extends Controller {
+    get infographicComponentName() {
+      return this.isMarketOpen ? 'live-updating-chart' : 'market-close-summary';
         }
       }
-    })
-  });
   ```
 
   The `live-updating-chart` component will be appended when `isMarketOpen` is
@@ -70,18 +63,12 @@
   import { computed } from '@ember/object';
 
   export default Controller.extend({
-    lastUpdateTimestamp: computed(function() {
+    get lastUpdateTimestamp() {
       return new Date();
     }),
 
-    infographicComponentName: computed('isMarketOpen', {
-      get() {
-        if (this.get('isMarketOpen')) {
-          return 'live-updating-chart';
-        } else {
-          return 'market-close-summary';
-        }
-      }
+    get infographicComponentName() {
+      return this.isMarketOpen ? 'live-updating-chart' : 'market-close-summary';
     })
   });
   ```

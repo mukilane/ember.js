@@ -95,18 +95,18 @@ export default class RouterService extends Service {
      specific model from a Component.
 
      ```javascript
-     import Component from '@ember/component';
+     import Component from '@glimmer/component';
+     import { action } from '@ember/object';
      import { inject as service } from '@ember/service';
 
-     export default Component.extend({
-       router: service(),
+     export default class extends Component {
+       @service router;
 
-       actions: {
-         goToComments(post) {
-           this.router.transitionTo('comments', post);
-         }
+       @action
+       goToComments(post) {
+         this.router.transitionTo('comments', post);
        }
-     });
+     }
      ```
 
      @method transitionTo
@@ -147,7 +147,7 @@ export default class RouterService extends Service {
      ```app/routes/application.js
      import Route from '@ember/routing/route';
 
-     export default Route.extend({
+     export default class extends Route {
        beforeModel() {
          if (!authorized()){
            this.replaceWith('unauthorized');
@@ -286,16 +286,16 @@ export default class RouterService extends Service {
      import Component from '@ember/component';
      import { inject as service } from '@ember/service';
 
-     export default Component.extend({
-       router: service(),
-       path: '/',
+     export default class extends Component {
+       @service router;
+       path = '/';
 
        click() {
-         if(this.router.recognize(this.path)) {
+         if (this.router.recognize(this.path)) {
            this.router.transitionTo(this.path);
          }
        }
-     });
+     }
      ```
 
       @method recognize
@@ -341,12 +341,16 @@ export default class RouterService extends Service {
     half-filled out:
 
     ```app/routes/contact-form.js
+    import Route from '@ember/routing';
+    import { action } from '@ember/object';
     import { inject as service } from '@ember/service';
 
-    export default Route.extend({
-      router: service('router'),
-      init() {
-        this._super(...arguments);
+    export default class extends Route {
+      @service router;
+
+      constructor() {
+        super(...arguments);
+        
         this.router.on('routeWillChange', (transition) => {
           if (!transition.to.find(route => route.name === this.routeName)) {
             alert("Please save or cancel your changes.");
@@ -354,7 +358,7 @@ export default class RouterService extends Service {
           }
         })
       }
-    });
+    }
     ```
 
     The `routeWillChange` event fires whenever a new route is chosen as the desired target of a transition. This includes `transitionTo`, `replaceWith`, all redirection for any reason including error handling, and abort. Aborting implies changing the desired target back to where you already were. Once a transition has completed, `routeDidChange` fires.
@@ -372,12 +376,16 @@ export default class RouterService extends Service {
     A good example is sending some analytics when the route has transitioned:
 
     ```app/routes/contact-form.js
+    import Route from '@ember/routing';
+    import { action } from '@ember/object';
     import { inject as service } from '@ember/service';
 
-    export default Route.extend({
-      router: service('router'),
-      init() {
-        this._super(...arguments);
+    export default class extends Route {
+      @service router;
+
+      constructor() {
+        super(...arguments);
+        
         this.router.on('routeDidChange', (transition) => {
           ga.send('pageView', {
             current: transition.to.name,
@@ -385,7 +393,7 @@ export default class RouterService extends Service {
           });
         })
       }
-    });
+    }
     ```
 
     @event routeDidChange
@@ -533,14 +541,14 @@ RouterService.reopen(Evented, {
 
     Usage example:
     ```app/components/header.js
-      import Component from '@ember/component';
+      import Component from '@glimmer/component';
       import { inject as service } from '@ember/service';
-      import { computed } from '@ember/object';
+      import { notEmpty } from '@ember/object/computed';
 
-      export default Component.extend({
-        router: service(),
+      export default class extends Component {
+        @service router;
 
-        isChildRoute: computed.notEmpty('router.currentRoute.child')
+        @notEmpty('router.currentRoute.child') isChildRoute;
       });
     ```
 
